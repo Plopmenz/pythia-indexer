@@ -26,6 +26,7 @@ async function start() {
 
   multichainWatcher.forEach((contractWatcher) => {
     publicClients[contractWatcher.chain.id].watchBlocks({
+      poll: true,
       includeTransactions: true,
       onBlock: (block) => {
         storage.query(
