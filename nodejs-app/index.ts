@@ -43,7 +43,7 @@ async function start() {
 
         block.transactions.forEach((tx) => {
           storage.query(
-            "INSERT INTO ethereum_transactions VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+            "INSERT INTO ethereum_transactions VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
             [
               block.timestamp,
               tx.hash,
@@ -53,6 +53,7 @@ async function start() {
               tx.gas,
               tx.gasPrice,
               tx.input,
+              tx.blockNumber,
             ]
           );
         });
