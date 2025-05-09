@@ -45,7 +45,7 @@ export async function processApproval(
   storage: Storage
 ): Promise<void> {
   storage.query(
-    "INSERT INTO fetch_erc20_transfers VALUES ($1, $2, $3, $4, $5, $6, $7)",
+    "INSERT INTO fetch_erc20_approvals VALUES ($1, $2, $3, $4, $5, $6, $7)",
     [
       event.timestamp,
       event.owner,
