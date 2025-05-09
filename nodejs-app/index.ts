@@ -51,7 +51,7 @@ async function start() {
               tx.to,
               parseFloat(formatUnits(tx.value, 18)),
               tx.gas,
-              tx.gasPrice,
+              tx.gasPrice ? parseFloat(formatUnits(tx.gasPrice, 9)) : undefined,
               tx.input,
               tx.blockNumber,
             ]
