@@ -1,5 +1,5 @@
 {
-  description = "Nodejs app running on Xnode!";
+  description = "Populates database with information to showcase in Pythia.";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs?ref=nixos-unstable";

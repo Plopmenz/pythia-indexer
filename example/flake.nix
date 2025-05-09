@@ -1,14 +1,17 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    xnode-nodejs-template.url = "github:Openmesh-Network/xnode-nodejs-template";
+    pythia-indexer = {
+      url = "path:.."; # "github:OpenxAI-Network/pythia-indexer";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
     {
       self,
       nixpkgs,
-      xnode-nodejs-template,
+      pythia-indexer,
       ...
     }:
     let
@@ -18,27 +21,25 @@
       nixosConfigurations.container = nixpkgs.lib.nixosSystem {
         inherit system;
         specialArgs = {
-          inherit xnode-nodejs-template;
+          inherit pythia-indexer;
         };
         modules = [
           (
-            { xnode-nodejs-template, ... }:
+            { pythia-indexer, ... }:
             {
               imports = [
-                xnode-nodejs-template.nixosModules.default
+                pythia-indexer.nixosModules.default
               ];
 
               boot.isContainer = true;
 
-              services.xnode-nodejs-template = {
+              services.pythia-indexer = {
                 enable = true;
               };
 
               networking = {
-                useHostResolvConf = nixpkgs.lib.mkForce false;
+                firewall.allowedTCPPorts = [ 3001 ];
               };
-
-              services.resolved.enable = true;
 
               system.stateVersion = "25.05";
             }

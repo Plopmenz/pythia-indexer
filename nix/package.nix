@@ -1,6 +1,6 @@
 { pkgs, lib }:
 let
-  pname = "xnode-nodejs-template";
+  pname = "pythia-indexer";
 in
 pkgs.buildNpmPackage {
   inherit pname;
@@ -25,12 +25,12 @@ pkgs.buildNpmPackage {
     cp -r node_modules $out/node_modules
     cp -r build $out/build
     chmod +x $out/build/index.js
-    makeWrapper $out/build/index.js $out/bin/xnode-nodejs-template 
+    makeWrapper $out/build/index.js $out/bin/pythia-indexer 
   '';
 
   doDist = false;
 
   meta = {
-    mainProgram = "xnode-nodejs-template";
+    mainProgram = "pythia-indexer";
   };
 }

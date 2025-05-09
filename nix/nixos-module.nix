@@ -5,31 +5,55 @@
   ...
 }:
 let
-  cfg = config.services.xnode-nodejs-template;
-  xnode-nodejs-template = pkgs.callPackage ./package.nix { };
+  cfg = config.services.pythia-indexer;
+  pythia-indexer = pkgs.callPackage ./package.nix { };
 in
 {
   options = {
-    services.xnode-nodejs-template = {
-      enable = lib.mkEnableOption "Enable the node.js app";
+    services.pythia-indexer = {
+      enable = lib.mkEnableOption "Enable the Pythia indexer app";
+
+      dbConnectionString = lib.mkOption {
+        type = lib.types.str;
+        default = "postgres://pythiabackend:pythiabackend@localhost:5432/pythia";
+        example = "postgres://user:password@host:5432/database";
+        description = ''
+          Database to store information in.
+        '';
+      };
+
+      infuraApiKey = lib.mkOption {
+        type = lib.types.str;
+        default = "";
+        example = "<YOUR-API-KEY>";
+        description = ''
+          Infura API key to use for RPC calls.
+        '';
+      };
     };
   };
 
   config = lib.mkIf cfg.enable {
-    users.groups.xnode-nodejs-template = { };
-    users.users.xnode-nodejs-template = {
+    users.groups.pythia-indexer = { };
+    users.users.pythia-indexer = {
       isSystemUser = true;
-      group = "xnode-nodejs-template";
+      group = "pythia-indexer";
     };
 
-    systemd.services.xnode-nodejs-template = {
+    systemd.services.pythia-indexer = {
       wantedBy = [ "multi-user.target" ];
-      description = "Node.js App.";
+      description = "Populates database with information to showcase in Pythia.";
       after = [ "network.target" ];
+      environment = {
+        DB_CONNECTION_STRING = cfg.dbConnectionString;
+        INFURA_API_KEY = cfg.infuraApiKey;
+      };
       serviceConfig = {
-        ExecStart = "${lib.getExe xnode-nodejs-template}";
-        User = "xnode-nodejs-template";
-        Group = "xnode-nodejs-template";
+        ExecStart = "${lib.getExe pythia-indexer}";
+        User = "pythia-indexer";
+        Group = "pythia-indexer";
+        StateDirectory = "pythia-indexer";
+        Restart = "on-failure";
       };
     };
   };
