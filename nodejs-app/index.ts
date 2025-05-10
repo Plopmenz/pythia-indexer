@@ -1,3 +1,4 @@
+console.log("##### Pythia Indexer: Top of index.ts #####"); // Forceful log
 import { mainnet } from "viem/chains";
 
 import { MultichainWatcher } from "./utils/multichain-watcher.js";
@@ -8,10 +9,12 @@ import { Storage } from "./types/storage.js";
 import { Pool } from "pg";
 import { publicClients } from "./utils/chain-cache.js";
 import { formatUnits } from "viem";
+import { startOracleWatchers } from './oracle-watchers/oracleFetcher.js';
 
 export let multichainWatcher: MultichainWatcher;
 
 async function start() {
+  console.log("##### Pythia Indexer: start() function entered #####"); // Forceful log
   // Make contract watcher for each chain (using Infura provider)
   multichainWatcher = new MultichainWatcher([
     {
@@ -63,6 +66,13 @@ async function start() {
     watchApproval(contractWatcher, storage);
     watchTransfer(contractWatcher, storage);
   });
+
+  // Start Oracle Watchers
+  console.log("##### Pythia Indexer: Attempting to start Oracle Watchers... #####"); // Forceful log
+  await startOracleWatchers().catch(error => {
+      console.error("Failed to start Oracle Watchers:", error);
+  });
 }
 
 start().catch(console.error);
+console.log("##### Pythia Indexer: Bottom of index.ts, start() invoked #####"); // Forceful log
