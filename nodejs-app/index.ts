@@ -1,13 +1,15 @@
 import { mainnet } from "viem/chains";
 
 import { MultichainWatcher } from "./utils/multichain-watcher.js";
-import { watchApproval } from "./event-watchers/token/Approval.js";
-import { watchTransfer } from "./event-watchers/token/Transfer.js";
+import { watchApproval } from "./event-watchers/fetch/Approval.js";
+import { watchTransfer } from "./event-watchers/fetch/Transfer.js";
 import { infuraApiKey, dbConnectionString } from "./utils/env.js";
 import { Storage } from "./types/storage.js";
 import { Pool } from "pg";
 import { publicClients } from "./utils/chain-cache.js";
 import { formatUnits } from "viem";
+import { watchChainlink } from "./price-watchers/chainlink.js";
+import { watchBinance } from "./price-watchers/binance.js";
 
 export let multichainWatcher: MultichainWatcher;
 
@@ -60,9 +62,22 @@ async function start() {
       },
     });
 
-    watchApproval(contractWatcher, storage);
-    watchTransfer(contractWatcher, storage);
+    if (contractWatcher.chain.id === mainnet.id) {
+      // only watch FETCH on mainnet
+      watchApproval(contractWatcher, storage);
+      watchTransfer(contractWatcher, storage);
+    }
   });
+
+  const priceFeeds = await Promise.all([
+    watchBinance(storage),
+    watchChainlink(storage),
+  ]);
+
+  setInterval(() => {
+    const timestamp = Math.round(Date.now() / 1000);
+    Promise.all(priceFeeds.map((f) => f(timestamp))).catch(console.error);
+  }, 1000); // update prices once per second
 }
 
 start().catch(console.error);
